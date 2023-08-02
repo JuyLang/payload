@@ -2,7 +2,7 @@ import socket
 
 target_ip = "172.18.0.2"
 min_port = 1
-max_port = 65535
+max_port = 9000
 
 for port in range(min_port, max_port + 1):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
